@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const got = require('got');
 const fs = require('fs');
 var path = require("path");
@@ -72,5 +73,18 @@ module.exports = {
         delete file.ids[channelID];
         this.writeToFile();
         return true;
+    },
+    createPreviewMessage(message, text, image) {
+        const authorName = `${message.author.username}#${message.author.discriminator} (ID \n${message.author.id})`
+        const embed = new Discord.MessageEmbed()
+          .setColor(0xDF2B40)
+          .setAuthor(authorName, message.author.avatarURL())
+          .setDescription(`${text}\r\n\r\n **Message link:** ${message.url}`)
+          .addFields(
+            { name: '\u200b', value: `Message in ${message.channel}`,inline: true })
+          .setImage(`${image.first() ? `\r\n\r\n${image.first().attachment}` : ''}`)
+          .setTimestamp(message.editedTimestamp || message.createdTimestamp);
+
+        return embed;
     }
 };
