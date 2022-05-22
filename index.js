@@ -16,6 +16,7 @@ const client = new Client({
 });
 
 const hwChannels = require('./hwchannels.json')
+const previewChannel = require('./previewlinkschannel.json')
 const HomeworkDB = require('./database/homework-db')
 
 client.commands = new Collection();
@@ -32,6 +33,10 @@ client.once('ready', () => {
 
 client.on('messageCreate', async interaction => {
 	if (interaction.author.bot) return;
+
+	if (!previewChannel.ids.includes(interaction.channel.id)){
+		return;
+	}
 	const linkFormat = 'https://discord.com/channels/';
 	const urlRegex = /(https?:\/\/[^\s]+)/g;
 	var text = interaction.content;
@@ -41,18 +46,16 @@ client.on('messageCreate', async interaction => {
 		if (!link.includes(linkFormat)) return;
 		const messageInfo = link.replace(linkFormat, "").split("/");
 		const guildId = messageInfo[0];
-		const channelId = messageInfo[1];
-		const messageId = messageInfo[2];
 		const guild = interaction.client.guilds.cache.get(guildId);
 		if (!guild) return;
+		const channelId = messageInfo[1];
+		const messageId = messageInfo[2];
 		guild.channels.cache.get(channelId).messages.fetch(messageId).then(message => {
-			console.log(message);
-			const embed = DiscordUtil.createPreviewMessage(message, message.content, message.attachments); 
-			interaction.channel.send({ embeds: [embed], files: [message.attachments] });
+			const embed = DiscordUtil.createPreviewMessage(message, message.content, message.attachments);
+			interaction.channel.send({ embeds: [embed]})
 		});
 
 	})
-	console.log(links);
 })
 
 client.on('interactionCreate', async interaction => {
