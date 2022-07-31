@@ -71,6 +71,28 @@ client.on('interactionCreate', async interaction => {
         const command = client.commands.get(interaction.commandName);
         if (command) command.execute(interaction);
     }
+
+	if (interaction.isSelectMenu()) {
+		await interaction.deferUpdate();
+		await wait(4000);
+		const selectMenuName = interaction.customId.split('_')[0];
+		const messageId = interaction.customId.split('_')[1];
+		if (selectMenuName === 'addhw') {
+			interaction.channel.messages.fetch(messageId).then(async (msg) => {
+				const classCode = hwChannels.ids[interaction.channelId];
+				const hwNumber = interaction.values[0];
+				msg.react(numberEmojis.emojis[hwNumber - 1]);
+				const result = await saveHomeworkToDB(msg, hwNumber, classCode);
+
+				if (result) {
+					await interaction.editReply({ content: `The homework has been registered as assignment number ${interaction.values.join(', ')}! <a:btshooky_thumbsup:854135650294169610> `, components: [] });
+				} else {
+					await interaction.editReply({ content: 'Oops! There was a problem registering this assignment. <a:btshooksad:802306534721191956>', components: [] });
+				}
+			});
+		}
+	}
+
 	if (!interaction.isCommand()) return;
 	const command = client.commands.get(interaction.commandName);
 
