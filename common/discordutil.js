@@ -6,6 +6,9 @@ const fileName = '../hwchannels.json';
 var pathToJson = path.resolve(__dirname, fileName);
 const file = require(pathToJson);
 
+const previewFileName = '../previewlinkschannel.json';
+let pathToPreviewJson = path.resolve(__dirname, previewFileName);
+const filePreview = require(pathToPreviewJson);
 
 module.exports = {
 
@@ -64,15 +67,23 @@ module.exports = {
         return true;
     },
     addPreviewChannel(channelID, message){
-        const previewFileName = '../previewlinkschannel.json';
-        var pathToPreviewJson = path.resolve(__dirname, previewFileName);
-        const filePreview = require(pathToPreviewJson);
-        if (channelID in filePreview.ids){
+        if (filePreview.ids.includes(channelID)){
             message.followUp(`Channel <#${channelID}> has already been added to preview links. <a:shookysad:949689086665437184>`)
             return false;
         }
-        console.log(filePreview.ids);
+        console.log('SAVING NEW PREVIEW LINK CHANNEL')
         filePreview.ids.push(channelID);
+        this.writeToFile(pathToPreviewJson, filePreview);
+        return true;
+    },
+    removePreviewChannel(channelID, message){
+        if (!filePreview.ids.includes(channelID)){
+            message.followUp(`Channel <#${channelID}> has not been added as a Homework Channel. <a:shookysad:949689086665437184>`)
+            return false;
+        }
+        
+        console.log('REMOVING PREVIEW LINK CHANNEL');
+        filePreview.ids = filePreview.ids.filter(id => id != channelID);
         this.writeToFile(pathToPreviewJson, filePreview);
         return true;
     },
@@ -81,10 +92,10 @@ module.exports = {
             message.followUp(`Channel <#${channelID}> has not been added as a Homework Channel. <a:shookysad:949689086665437184>`)
             return false;
         }
-        console.log('SAVING NEW CHANNEL')
+        console.log('REMOVING CHANNEL')
 
         delete file.ids[channelID];
-        this.writeToFile();
+        this.writeToFile(pathToJson, file);
         return true;
     },
     createPreviewMessage(message, text, images) {
@@ -95,7 +106,7 @@ module.exports = {
                 pictureLinks += `${image['proxyURL']}\n` ;
             })
         }
-        console.log(pictureLinks);
+        console.log(`Creating preview message with links`);
         var randomColor = Math.floor(Math.random()*16777215).toString(16);
         const embed = new Discord.MessageEmbed()
           .setColor(randomColor)

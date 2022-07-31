@@ -4,8 +4,8 @@ const { ChannelType } = require('discord-api-types/v9');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('addpreviewlinkchannel')
-		.setDescription('Add a channel to use the preview link feature')
+		.setName('removepreviewlinkchannel')
+		.setDescription('Remove a channel to use the preview link feature')
         .setDefaultPermission(false)
         .addChannelOption(option =>
             option.setName('channel')
@@ -18,9 +18,9 @@ module.exports = {
 
         await interaction.deferReply();
 
-        const addedChannelCorrectly = DiscordUtil.addPreviewChannel(channelID, interaction);
-        if (addedChannelCorrectly) {
-            return interaction.followUp(`Added channel <#${channelID}> (${channelID}) as a Preview channel`);
+        const removedChannelCorrectly = DiscordUtil.removePreviewChannel(channelID, interaction);
+        if (removedChannelCorrectly) {
+            return interaction.followUp(`Removed channel <#${channelID}> (${channelID}) as a Preview channel.`);
         }
 	}
 };
