@@ -2,10 +2,11 @@
   "name": "discordbot",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "build": "tsc",
+    "start": "node index.ts",
+    "dev": "nodemon index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "MissMuffinman",
@@ -13,6 +14,7 @@
   "dependencies": {
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.1.0-canary.0",
+    "@types/node": "^18.7.14",
     "aws-sdk": "^2.918.0",
     "discord-api-types": "^0.31.0",
     "discord-backup": "^3.2.1",

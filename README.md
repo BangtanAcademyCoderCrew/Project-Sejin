@@ -1,7 +1,7 @@
 # Project-Sejin
 
 ## Overview
-index.js is the entry point on starting up the bot and listening to commands. 
+index.ts is the entry point on starting up the bot and listening to commands. 
 All commands are hosted in separate files under the /command folder. 
 
 ## Tweaking configurations
