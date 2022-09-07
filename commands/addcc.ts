@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, roleMention } from '@discordjs/builders';
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, GuildBasedChannel } from 'discord.js';
 import { createClass, getClassCodeByRoleID } from '../api/classApi';
 import { addChannelStringOption, addClassCodeStringOption } from '../common/commandHelper';
 import { addHomeworkChannel } from '../common/discordutil';
@@ -45,7 +45,7 @@ export const addCc: ICommand = {
         const type = options.getString('type');
         const numberOfAssignments = options.getInteger('number_of_assignments') || 0;
 
-        const validateChannel = (hwChannel, channelID) => {
+        const validateChannel = async (hwChannel: GuildBasedChannel, channelID: string): Promise<boolean> => {
             const validChannels = {
                 hw: ['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD'],
                 vc: ['GUILD_VOICE'],
@@ -64,7 +64,7 @@ export const addCc: ICommand = {
                 return false;
             }
             if (['hw'].includes(type)) {
-                const addedChannelCorrectly = addHomeworkChannel(hwChannel.id, interaction, classCode);
+                const addedChannelCorrectly = await addHomeworkChannel(hwChannel.id, interaction, classCode);
                 if (!addedChannelCorrectly) {
                     return false;
                 }
@@ -81,13 +81,12 @@ export const addCc: ICommand = {
         }
 
         const allChannelIDs = channelIDs.split(' ');
-        let validated = true;
-        allChannelIDs.forEach((hwChannelID) => {
-            const hwChannel = channel.guild.channels.cache.get(hwChannelID);
-            if (!validateChannel(hwChannel, hwChannelID)) {
-                validated = false;
-            }
-        });
+        const validated = await Promise.all(
+            allChannelIDs.map((hwChannelID) => {
+                const hwChannel = channel.guild.channels.cache.get(hwChannelID);
+                return validateChannel(hwChannel, hwChannelID);
+            })
+        );
         if (!validated) {
             return;
         }

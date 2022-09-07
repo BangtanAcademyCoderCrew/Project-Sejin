@@ -1,12 +1,7 @@
-import { ApplicationCommandPermissionData, CommandInteraction } from 'discord.js';
+import { ApplicationCommand, ApplicationCommandPermissionData, Collection, CommandInteraction } from 'discord.js';
 import { SlashCommandBuilder, roleMention } from '@discordjs/builders';
-import path from 'path';
-import { writeFile } from 'fs';
 import { ICommand } from '../types/command';
-
-const dirname = path.resolve();
-const pathToJson = path.resolve(dirname, '../customPermissions.json');
-const file = await import(pathToJson);
+import { addCommandPermission } from '../common/discordutil';
 
 export const addPermissions: ICommand = {
     config: new SlashCommandBuilder()
@@ -25,29 +20,17 @@ export const addPermissions: ICommand = {
         const roleID = options.getRole('role').id;
         const commandName = options.getString('command');
 
-        const writeToFile = (commandId: string, permissions: Array<ApplicationCommandPermissionData>) => {
-            if (commandId in file) {
-                file[commandId].permissions = file[commandId].permissions.concat(permissions);
-            } else {
-                file[commandId] = {
-                    id: commandId,
-                    permissions
-                };
-            }
+        let commands = new Collection<string, ApplicationCommand>();
+        try {
+            commands = await guild.commands.fetch();
+        } catch (error) {
+            console.error('Something went wrong when fetching guild commands: ', error);
+            await interaction.reply({ content: `Unable to fetch guild commands. <a:shookysad:949689086665437184>` });
+            return;
+        }
 
-            const fileString = JSON.stringify(file);
-            writeFile(pathToJson, fileString, (err) => {
-                if (err) {
-                    console.log(`Error writing to file for commandId ${commandId}: ${err}`);
-                }
-                console.log(`Successfully wrote to file: fileString ${fileString}, pathToJson ${pathToJson}`);
-            });
-        };
-
-        const cmd = await guild.commands.fetch().then((commands) => {
-            return commands.find((command) => command.name === commandName);
-        });
-        if (!cmd) {
+        const command = commands.find((c) => c.name === commandName);
+        if (!command) {
             await interaction.reply({ content: `Command ${commandName} not found. <a:shookysad:949689086665437184>` });
             return;
         }
@@ -59,10 +42,18 @@ export const addPermissions: ICommand = {
                 permission: true
             }
         ];
-        await cmd.permissions.add({ permissions });
-        writeToFile(cmd.id, permissions);
-        await interaction.reply({
-            content: `You added the role ${roleMention(roleID)} to use the command ${commandName}.`
-        });
+        await command.permissions.add({ permissions });
+        const result = await addCommandPermission(command.id, permissions);
+        if (result) {
+            await interaction.reply({
+                content: `You added the role ${roleMention(roleID)} to use the command ${commandName}.`
+            });
+        } else {
+            await interaction.reply({
+                content: `Something went wrong when adding the role ${roleMention(
+                    roleID
+                )} to use the command ${commandName}.`
+            });
+        }
     }
 };

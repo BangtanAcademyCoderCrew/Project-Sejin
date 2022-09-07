@@ -14,7 +14,7 @@ export const removeHwChannel: ICommand = {
         await interaction.deferReply();
         const { options } = interaction;
         const channelID = options.getChannel('channel').id;
-        const removedChannelCorrectly = removeHomeworkChannel(channelID, interaction);
+        const removedChannelCorrectly = await removeHomeworkChannel(channelID, interaction);
         if (removedChannelCorrectly) {
             await interaction.followUp(`Removed channel <#${channelID}> (${channelID}) as a Homework channel`);
         }

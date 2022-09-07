@@ -29,7 +29,7 @@ export const addHwChannel: ICommand = {
             return;
         }
 
-        const addedChannelCorrectly = addHomeworkChannel(channelID, interaction, classCode);
+        const addedChannelCorrectly = await addHomeworkChannel(channelID, interaction, classCode);
         if (addedChannelCorrectly) {
             await interaction.followUp(`Added channel <#${channelID}> (${channelID}) as a Homework channel`);
         }

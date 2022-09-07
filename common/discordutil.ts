@@ -1,11 +1,13 @@
-import { writeFile } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
-import { BaseCommandInteraction, Message, PartialMessage } from 'discord.js';
+import { ApplicationCommandPermissionData, BaseCommandInteraction, Message, PartialMessage } from 'discord.js';
 import { addHomework } from '../api/homeworkApi';
 
 const dirname = path.resolve();
-const pathToJson = path.resolve(dirname, '../hwchannels.json');
-const file = await import(pathToJson);
+const pathToHwDataStore = path.resolve(dirname, '../hwchannels.json');
+const homeworkDataStore = await import(pathToHwDataStore);
+const pathToPermissionsDataStore = path.resolve(dirname, '../customPermissions.json');
+const permissionsDataStore = await import(pathToPermissionsDataStore);
 
 const getTimeForSavingHomework = (message: Message | PartialMessage) => {
     const date = new Date(message.createdTimestamp);
@@ -19,42 +21,71 @@ const getTimeForSavingHomework = (message: Message | PartialMessage) => {
     return CSTDay.toString();
 };
 
-const writeToFile = (): void => {
-    writeFile(pathToJson, JSON.stringify(file), (error) => {
-        if (error) {
-            console.log(`Error writing to file: ${error}`);
-            return;
-        }
-        console.log(JSON.stringify(file));
-        console.log(`writing to ${pathToJson}`);
-    });
+const writeToFile = async (pathToJson, file): Promise<boolean> => {
+    const fileString = JSON.stringify(file);
+    try {
+        console.log(`Successfully wrote to file: fileString ${fileString}, pathToJson ${pathToPermissionsDataStore}`);
+        await fs.writeFile(pathToJson, JSON.stringify(file));
+        return true;
+    } catch (error) {
+        console.log(`Error writing to file: ${error}`);
+        return false;
+    }
 };
 
-const addHomeworkChannel = (channelID: string, message: BaseCommandInteraction, classCode: string): boolean => {
+const addCommandPermission = async (
+    commandId: string,
+    permissions: Array<ApplicationCommandPermissionData>
+): Promise<boolean> => {
+    if (commandId in permissionsDataStore) {
+        permissionsDataStore[commandId].permissions = permissionsDataStore[commandId].permissions.concat(permissions);
+    } else {
+        permissionsDataStore[commandId] = {
+            id: commandId,
+            permissions
+        };
+    }
+    return writeToFile(pathToPermissionsDataStore, permissionsDataStore);
+};
+
+const removeCommandPermission = async (
+    commandId: string,
+    newPermissions: Array<ApplicationCommandPermissionData>
+): Promise<boolean> => {
+    if (commandId in permissionsDataStore) {
+        permissionsDataStore[commandId].permissions = permissionsDataStore[commandId].permissions.filter(
+            (permission) => permission.id !== newPermissions[0].id
+        );
+        return writeToFile(pathToPermissionsDataStore, permissionsDataStore);
+    }
+    return false;
+};
+
+const addHomeworkChannel = async (
+    channelID: string,
+    message: BaseCommandInteraction,
+    classCode: string
+): Promise<boolean> => {
     console.log(channelID);
-    if (channelID in file.ids) {
+    if (channelID in homeworkDataStore.ids) {
         message.followUp(
             `Channel <#${channelID}> has already been added as a Homework Channel. <a:shookysad:949689086665437184>`
         );
         return false;
     }
-    file.ids[channelID] = classCode;
-    writeToFile();
-    return true;
+    homeworkDataStore.ids[channelID] = classCode;
+    return writeToFile(pathToHwDataStore, homeworkDataStore);
 };
 
-const removeHomeworkChannel = (channelID: string, message: BaseCommandInteraction): boolean => {
-    if (!(channelID in file.ids)) {
+const removeHomeworkChannel = async (channelID: string, message: BaseCommandInteraction): Promise<boolean> => {
+    if (!(channelID in homeworkDataStore.ids)) {
         message.followUp(
             `Channel <#${channelID}> has not been added as a Homework Channel. <a:shookysad:949689086665437184>`
         );
         return false;
     }
-    console.log('SAVING NEW CHANNEL');
-
-    delete file.ids[channelID];
-    writeToFile();
-    return true;
+    delete homeworkDataStore.ids[channelID];
+    return writeToFile(pathToHwDataStore, homeworkDataStore);
 };
 
 const saveHomeworkToDB = async (
@@ -66,7 +97,7 @@ const saveHomeworkToDB = async (
     const timestamp = getTimeForSavingHomework(message);
 
     const result = await addHomework(id, author.id, channel.id, timestamp, assignmentNumber, classCode);
-    if (result === true) {
+    if (result) {
         await message.react('👍');
     } else {
         await message.react('❌');
@@ -101,4 +132,12 @@ const getNameOfEmoji = (emoji): string | null => {
     }
 };
 
-export { addHomeworkChannel, getNameOfEmoji, getTimeForSavingHomework, removeHomeworkChannel, saveHomeworkToDB };
+export {
+    addCommandPermission,
+    addHomeworkChannel,
+    getNameOfEmoji,
+    getTimeForSavingHomework,
+    removeCommandPermission,
+    removeHomeworkChannel,
+    saveHomeworkToDB
+};

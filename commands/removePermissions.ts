@@ -1,12 +1,7 @@
-import { ApplicationCommandPermissionData, CommandInteraction } from 'discord.js';
+import { ApplicationCommand, ApplicationCommandPermissionData, Collection, CommandInteraction } from 'discord.js';
 import { SlashCommandBuilder, roleMention } from '@discordjs/builders';
-import path from 'path';
-import { writeFile } from 'fs';
 import { ICommand } from '../types/command';
-
-const dirname = path.resolve();
-const pathToJson = path.resolve(dirname, '../customPermissions.json');
-const file = await import(pathToJson);
+import { removeCommandPermission } from '../common/discordutil';
 
 export const removePermissions: ICommand = {
     config: new SlashCommandBuilder()
@@ -21,29 +16,21 @@ export const removePermissions: ICommand = {
         ),
     execute: async (interaction: CommandInteraction) => {
         await interaction.deferReply();
-        const { options } = interaction;
+        const { guild, options } = interaction;
         const roleID = options.getRole('role').id;
         const commandName = options.getString('command');
 
-        const writeToFile = (commandId: string, newPermissions: Array<ApplicationCommandPermissionData>) => {
-            if (commandId in file) {
-                file[commandId].permissions = file[commandId].permissions.filter(
-                    (permission) => permission.id !== newPermissions[0].id
-                );
-                const fileString = JSON.stringify(file);
-                writeFile(pathToJson, fileString, (err) => {
-                    if (err) {
-                        console.log(`Error writing to file for commandId ${commandId}: ${err}`);
-                    }
-                    console.log(`Successfully wrote to file: fileString ${fileString}, pathToJson ${pathToJson}`);
-                });
-            }
-        };
+        let commands = new Collection<string, ApplicationCommand>();
+        try {
+            commands = await guild.commands.fetch();
+        } catch (error) {
+            console.error('Something went wrong when fetching guild commands: ', error);
+            await interaction.reply({ content: `Unable to fetch guild commands. <a:shookysad:949689086665437184>` });
+            return;
+        }
 
-        const cmd = await interaction.guild.commands.fetch().then((commands) => {
-            return commands.find((command) => command.name === commandName);
-        });
-        if (!cmd) {
+        const command = commands.find((c) => c.name === commandName);
+        if (!command) {
             await interaction.reply({ content: `Command ${commandName} not found. <a:shookysad:949689086665437184>` });
             return;
         }
@@ -56,10 +43,18 @@ export const removePermissions: ICommand = {
             }
         ];
 
-        await cmd.permissions.add({ permissions });
-        writeToFile(cmd.id, permissions);
-        await interaction.reply({
-            content: `You removed the role ${roleMention(roleID)} to use the command ${commandName}.`
-        });
+        await command.permissions.add({ permissions });
+        const result = await removeCommandPermission(command.id, permissions);
+        if (result) {
+            await interaction.reply({
+                content: `You removed the role ${roleMention(roleID)} to use the command ${commandName}.`
+            });
+        } else {
+            await interaction.reply({
+                content: `Something went wrong when removing the role ${roleMention(
+                    roleID
+                )} to use the command ${commandName}.`
+            });
+        }
     }
 };
