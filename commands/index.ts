@@ -16,19 +16,19 @@ import { removePermissions } from './removePermissions';
 import { setMessageChannel } from './setMessageChannel';
 
 export const Commands: Array<ICommand> = [
-  addCc,
-  addAlumniRoles,
-  addHw,
-  addHwChannel,
-  addHwCheckerRole,
-  addPermissions,
-  findCc,
-  log,
-  logHw,
-  logHwClass,
-  removeHw,
-  removeHwChannel,
-  removeHwCheckerRole,
-  removePermissions,
-  setMessageChannel
+    addCc,
+    addAlumniRoles,
+    addHw,
+    addHwChannel,
+    addHwCheckerRole,
+    addPermissions,
+    findCc,
+    log,
+    logHw,
+    logHwClass,
+    removeHw,
+    removeHwChannel,
+    removeHwCheckerRole,
+    removePermissions,
+    setMessageChannel
 ];

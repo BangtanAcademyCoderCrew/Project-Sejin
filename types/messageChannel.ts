@@ -1,7 +1,7 @@
 interface IMessageChannel {
-  id: string;
-  channelID: string;
-  guildID: string;
+    id: string;
+    channelID: string;
+    guildID: string;
 }
 
 export default IMessageChannel;
