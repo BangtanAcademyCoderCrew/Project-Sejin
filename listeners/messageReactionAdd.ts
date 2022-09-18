@@ -38,9 +38,9 @@ export default (client: IClient): void => {
 
             const classCode = hwChannels.ids[channelId];
             const emojiName = emoji.name;
-            const cleanEmojiName = emojiName.replace(/\d/g, '');
+            const cleanEmojiName = emojiName.replace(/[\d_]+/g, '').toLowerCase();
 
-            if (cleanEmojiName === 'purple_check_mark') {
+            if (cleanEmojiName === 'purplecheckmark') {
                 // eslint-disable-next-line no-underscore-dangle
                 const firstEmoji = message.reactions.cache.values().next().value._emoji.name;
                 const assignmentNumber = getNameOfEmoji(firstEmoji);
@@ -53,7 +53,7 @@ export default (client: IClient): void => {
             }
 
             if (emojiName === '⏭️') {
-                const nextEmojis = numberEmojis.emojis.slice(10, 15);
+                const nextEmojis = numberEmojis.emojis.slice(10, 20);
                 nextEmojis.forEach((e) => {
                     message.react(e);
                 });
@@ -65,7 +65,7 @@ export default (client: IClient): void => {
             if (isStoredNumberEmoji) {
                 await message.reactions.removeAll();
                 await message.react(fullEmojiId);
-                await saveHomeworkToDB(message, cleanEmojiName, classCode);
+                await saveHomeworkToDB(message, emojiName, classCode);
                 return;
             }
 
