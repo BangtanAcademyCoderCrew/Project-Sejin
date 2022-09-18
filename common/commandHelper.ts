@@ -37,7 +37,7 @@ const addHwDescriptionStringOption = (
         option
             .setName('hw_description')
             .setDescription(
-                "Description for each homework. Add 'number' to include the number. Eg: Assigment #'number'"
+                'Description for each homework. Add [number] to include the number. Eg: Assigment #[number]'
             )
             .setRequired(required)
     );

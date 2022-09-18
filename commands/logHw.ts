@@ -23,7 +23,7 @@ export const logHw: ICommand = {
         const endTime = options.getString('end_time');
         const classCode = options.getString('class_code');
         const desc = options.getString('description') || '';
-        const hwDesc = options.getString('hw_description') || 'Assignment "number"';
+        const hwDesc = options.getString('hw_description') || 'Assignment [number]';
         const shouldNotAllowMultipleEntries = options.getBoolean('no_multiples');
 
         if (classCode.length >= 7) {
@@ -72,7 +72,7 @@ export const logHw: ICommand = {
         const studentsIdsByHomeworkNumber = new Map();
         const alreadyLoggedStudentIds = [];
         homework
-            .sort()
+            .sort((a, b) => parseInt(a.timestamp, 10) - parseInt(b.timestamp, 10))
             .reverse()
             .forEach((hw) => {
                 const hwNumber = hw.type;
