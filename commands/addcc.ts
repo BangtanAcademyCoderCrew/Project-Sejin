@@ -93,17 +93,17 @@ export const addCc: ICommand = {
 
         const classChannel = channel.guild.channels.cache.get(allChannelIDs[0]);
         const sID = classChannel.guild.id;
+        const result = await getClassCodeByRoleID(roleID);
+        if (result && result.classCode !== classCode) {
+            await interaction.followUp(`There's already class code ${result.classCode} with this role assigned!`);
+            return;
+        }
 
-        getClassCodeByRoleID(roleID).then((result) => {
-            if (result && result.classCode !== classCode) {
-                return interaction.followUp(`There's already class code ${result.classCode} with this role assigned!`);
-            }
-            createClass(sID, roleID, channelIDs, classCode, classTitle, imageUrl, numberOfAssignments.toString());
-            return interaction.followUp(
-                `You set ${classCode} to be the class code for ${roleMention(
-                    roleID
-                )}\n The class title is: ${classTitle}\nThe class image is: ${imageUrl}`
-            );
-        });
+        await createClass(sID, roleID, channelIDs, classCode, classTitle, imageUrl, numberOfAssignments.toString());
+        await interaction.followUp(
+            `You set ${classCode} to be the class code for ${roleMention(
+                roleID
+            )}\n The class title is: ${classTitle}\nThe class image is: ${imageUrl}`
+        );
     }
 };

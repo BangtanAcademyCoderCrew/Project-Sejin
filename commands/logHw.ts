@@ -40,7 +40,7 @@ export const logHw: ICommand = {
             await interaction.followUp('Please insert the correct format for dates and time (YYYY/MM/DD HH:MM)');
             return;
         }
-        DateValidator.adaptFormatOfDays(startTime, startDay, endTime, endDay);
+
         const periodDayTimes = DateValidator.adaptFormatOfDays(startTime, startDay, endTime, endDay);
         startDay = periodDayTimes[0];
         endDay = periodDayTimes[1];

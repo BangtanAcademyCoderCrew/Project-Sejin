@@ -15,7 +15,7 @@ export const findCc: ICommand = {
         const roleId = options.getRole('role').id;
 
         const result = await getClassCodeByRoleID(roleId);
-        if (result) {
+        if (result?.classCode) {
             await interaction.followUp(`The class code is: ${result.classCode}`);
         }
     }
