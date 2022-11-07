@@ -1,8 +1,6 @@
 import { Client, Intents } from 'discord.js';
 import { token } from './config.json';
-import ready from './listeners/ready';
-import interactionCreate from './listeners/interactionCreate';
-import messageReactionAdd from './listeners/messageReactionAdd';
+import { ready, interactionCreate, messageReactionAdd } from './listeners/index';
 import { IClient } from './types/client';
 import { Commands } from './commands';
 

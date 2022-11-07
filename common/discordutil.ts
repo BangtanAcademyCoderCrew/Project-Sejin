@@ -2,12 +2,12 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { ApplicationCommandPermissionData, BaseCommandInteraction, Message, PartialMessage } from 'discord.js';
 import { addHomework } from '../api/homeworkApi';
+import * as homeworkDataStore from '../hwchannels.json';
+import * as permissionsDataStore from '../customPermissions.json';
 
 const dirname = path.resolve();
 const pathToHwDataStore = path.resolve(dirname, '../hwchannels.json');
-const homeworkDataStore = await import(pathToHwDataStore);
 const pathToPermissionsDataStore = path.resolve(dirname, '../customPermissions.json');
-const permissionsDataStore = await import(pathToPermissionsDataStore);
 
 const getTimeForSavingHomework = (message: Message | PartialMessage) => {
     const date = new Date(message.createdTimestamp);
