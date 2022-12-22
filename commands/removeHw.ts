@@ -7,7 +7,6 @@ import { ICommand } from '../types/command';
 export const removeHw: ICommand = {
     config: new ContextMenuCommandBuilder().setName('remove homework').setType(3).setDefaultPermission(false),
     execute: async (interaction: ContextMenuInteraction) => {
-        await interaction.deferReply();
         const { channelId, client, guildId, targetId } = interaction;
         const guild = client.guilds.cache.get(guildId);
         const channel = guild.channels.cache.get(channelId) as TextChannel | ThreadChannel;

@@ -37,7 +37,8 @@ const handleSelectMenu = async (client: IClient, interaction: SelectMenuInteract
         const classCode = hwChannels.ids[channelId];
         const hwNumber = values[0];
         const msg = await channel.messages.fetch(messageId);
-        await msg.react(numberEmojis.emojis[parseInt(hwNumber, 10) - 1]);
+        const hwEmojiIndex = parseInt(hwNumber, 10) - 1;
+        await msg.react(numberEmojis.emojis[hwEmojiIndex]);
         const result = await saveHomeworkToDB(msg, hwNumber, classCode);
         if (result) {
             await interaction.editReply({

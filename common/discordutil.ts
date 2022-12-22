@@ -5,9 +5,8 @@ import { addHomework } from '../api/homeworkApi';
 import * as homeworkDataStore from '../hwchannels.json';
 import * as permissionsDataStore from '../customPermissions.json';
 
-const dirname = path.resolve();
-const pathToHwDataStore = path.resolve(dirname, '../hwchannels.json');
-const pathToPermissionsDataStore = path.resolve(dirname, '../customPermissions.json');
+const pathToHwDataStore = path.resolve('hwchannels.json');
+const pathToPermissionsDataStore = path.resolve('customPermissions.json');
 
 const getTimeForSavingHomework = (message: Message | PartialMessage) => {
     const date = new Date(message.createdTimestamp);
@@ -24,8 +23,8 @@ const getTimeForSavingHomework = (message: Message | PartialMessage) => {
 const writeToFile = async (pathToJson, file): Promise<boolean> => {
     const fileString = JSON.stringify(file);
     try {
-        console.log(`Successfully wrote to file: fileString ${fileString}, pathToJson ${pathToPermissionsDataStore}`);
-        await fs.writeFile(pathToJson, JSON.stringify(file));
+        console.log(`Successfully wrote to file: fileString ${fileString}, pathToJson ${pathToJson}`);
+        await fs.writeFile(pathToJson, fileString);
         return true;
     } catch (error) {
         console.log(`Error writing to file: ${error}`);

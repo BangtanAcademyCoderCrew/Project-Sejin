@@ -84,7 +84,7 @@ const removeHomework = async (messageID: string, classCode: string): Promise<boo
         console.log(`Removing homework: messageID ${messageID}, classCode ${classCode}`);
         const command = new DeleteCommand(params);
         const result = await ddbDocClient.send(command);
-        console.log(`Successfully removed homework: ${result}`);
+        console.log(`Successfully removed homework: ${JSON.stringify(result)}`);
         return true;
     } catch (error) {
         console.log(`Error removing homework: ${error}`);

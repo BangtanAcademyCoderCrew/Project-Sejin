@@ -5,7 +5,6 @@ import { ICommand } from '../types/command';
 export const addHw: ICommand = {
     config: new ContextMenuCommandBuilder().setName('add homework').setType(3).setDefaultPermission(false),
     execute: async (interaction: ContextMenuInteraction) => {
-        await interaction.deferReply();
         const { targetId } = interaction;
         const options = [];
 
