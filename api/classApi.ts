@@ -77,7 +77,7 @@ const getClassCodeByRoleID = async (roleID: string): Promise<IClass> => {
         const result = await ddbDocClient.send(command);
         return result.Items.length > 0 ? (result.Items[0] as IClass) : ({} as IClass);
     } catch (error) {
-        console.log(`Error retrieving class by roleID ${roleID}: ${error}`);
+        console.log(`Error retrieving class for roleID ${roleID}: ${error}`);
         return error;
     }
 };

@@ -24,14 +24,14 @@ export const removePermissions: ICommand = {
         try {
             commands = await guild.commands.fetch();
         } catch (error) {
-            console.error('Something went wrong when fetching guild commands: ', error);
-            await interaction.reply({ content: `Unable to fetch guild commands. <a:shookysad:949689086665437184>` });
+            console.error('Something went wrong when fetching guild commands: ', JSON.stringify(error));
+            await interaction.reply({ content: `Unable to fetch guild commands. 😞` });
             return;
         }
 
         const command = commands.find((c) => c.name === commandName);
         if (!command) {
-            await interaction.reply({ content: `Command ${commandName} not found. <a:shookysad:949689086665437184>` });
+            await interaction.reply({ content: `Command ${commandName} not found. 😞` });
             return;
         }
 
@@ -47,13 +47,15 @@ export const removePermissions: ICommand = {
         const result = await removeCommandPermission(command.id, permissions);
         if (result) {
             await interaction.reply({
-                content: `You removed the role ${roleMention(roleID)} to use the command ${commandName}.`
+                content: `You removed the role ${roleMention(
+                    roleID
+                )}'s permission to use the command ${commandName}. 👍`
             });
         } else {
             await interaction.reply({
                 content: `Something went wrong when removing the role ${roleMention(
                     roleID
-                )} to use the command ${commandName}.`
+                )}'s permission to use the command ${commandName}. 😞`
             });
         }
     }

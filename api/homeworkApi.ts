@@ -39,7 +39,7 @@ const getHomeworks = async (
         const result = await ddbDocClient.send(command);
         return result.Items as Array<IHomework>;
     } catch (error) {
-        console.log(`Error retrieving homework: ${error}`);
+        console.log(`Error retrieving homework: ${JSON.stringify(error)}`);
         return error;
     }
 };
@@ -63,10 +63,10 @@ const addHomework = async (messageID, studentID, channelID, timestamp, type, cla
         );
         const command = new PutCommand(params);
         const result = await ddbDocClient.send(command);
-        console.log(`Successfully added homework: ${result}`);
+        console.log(`Successfully added homework: ${JSON.stringify(result)}`);
         return true;
     } catch (error) {
-        console.log(`Error adding homework: ${error}`);
+        console.log(`Error adding homework: ${JSON.stringify(error)}`);
         return false;
     }
 };
@@ -87,7 +87,7 @@ const removeHomework = async (messageID: string, classCode: string): Promise<boo
         console.log(`Successfully removed homework: ${JSON.stringify(result)}`);
         return true;
     } catch (error) {
-        console.log(`Error removing homework: ${error}`);
+        console.log(`Error removing homework: ${JSON.stringify(error)}`);
         return false;
     }
 };

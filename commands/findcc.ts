@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { roleMention, SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { getClassCodeByRoleID } from '../api/classApi';
 import { ICommand } from '../types/command';
@@ -15,8 +15,10 @@ export const findCc: ICommand = {
         const roleId = options.getRole('role').id;
 
         const result = await getClassCodeByRoleID(roleId);
-        if (result?.classCode) {
+        if (result.classCode) {
             await interaction.followUp(`The class code is: ${result.classCode}`);
+        } else {
+            await interaction.followUp(`No class found by role: ${roleMention(roleId)}`);
         }
     }
 };

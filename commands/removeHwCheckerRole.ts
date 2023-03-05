@@ -16,6 +16,6 @@ export const removeHwCheckerRole: ICommand = {
         const roleID = options.getRole('role').id;
         const emoji = guild.emojis.cache.find((e) => e.name === 'purple_check_mark');
         await emoji.roles.remove(roleID);
-        await interaction.reply(`You removed the role ${roleMention(roleID)} from being a homework checker.`);
+        await interaction.followUp(`You removed the role ${roleMention(roleID)} from being a homework checker. 👍`);
     }
 };

@@ -1,5 +1,5 @@
 import { CommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { channelMention, SlashCommandBuilder } from '@discordjs/builders';
 import { ChannelType } from 'discord-api-types/v9';
 import { addMessageChannel } from '../api/messageChannelApi';
 import { ICommand } from '../types/command';
@@ -54,6 +54,6 @@ export const setMessageChannel: ICommand = {
         }
 
         await addMessageChannel(cid, messageChannelID, guildId);
-        await interaction.followUp(`You set the message channel to be: ${messageChannelID}`);
+        await interaction.followUp(`You set the message channel to be: ${channelMention(messageChannelID)}.`);
     }
 };

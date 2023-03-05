@@ -28,7 +28,7 @@ export const addAlumniRoles: ICommand = {
 
         const foundClass = await getClass(classCode);
         if (!foundClass) {
-            await interaction.editReply(`Class code ${classCode} not found. <a:shookysad:949689086665437184>`);
+            await interaction.editReply(`Class code ${classCode} not found. 😞`);
             return;
         }
 
@@ -39,9 +39,7 @@ export const addAlumniRoles: ICommand = {
         const members = vcMembers.filter((m) => m.roles.cache.get(roleID));
         if (members.length === 0) {
             await interaction.editReply(
-                `There is no one on vc ${channelMention(channelID)} with role ${roleMention(
-                    roleID
-                )}> <a:shookysad:949689086665437184>`
+                `There is no one on vc ${channelMention(channelID)} with role ${roleMention(roleID)} 😞`
             );
             return;
         }

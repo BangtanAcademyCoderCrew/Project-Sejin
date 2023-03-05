@@ -18,7 +18,7 @@ export const removeHw: ICommand = {
                 message.reactions.removeAll();
             })
             .catch((error) => {
-                console.log(`Error fetching messages from channel ${targetId}: ${error}`);
+                console.log(`Error fetching messages from channel ${targetId}: ${JSON.stringify(error)}`);
             });
 
         await removeHomework(targetId, classCode);

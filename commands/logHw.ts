@@ -48,7 +48,7 @@ export const logHw: ICommand = {
         // Get information from the class using ClassCodeID
         const foundClass = await getClass(classCode);
         if (!foundClass) {
-            await interaction.followUp(`Class code ${classCode} not found. <a:shookysad:949689086665437184>`);
+            await interaction.followUp(`Class code ${classCode} not found. 😞`);
             return;
         }
 

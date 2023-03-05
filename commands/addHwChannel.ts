@@ -2,7 +2,7 @@ import { CommandInteraction } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { getClass } from '../api/classApi';
 import { addChannelOption, addClassCodeStringOption } from '../common/commandHelper';
-import { addHomeworkChannel } from '../common/discordutil';
+import { addHomeworkChannel, hasHomeworkChannel } from '../common/discordutil';
 import { ICommand } from '../types/command';
 
 const slashCommandBuilder = new SlashCommandBuilder();
@@ -24,14 +24,22 @@ export const addHwChannel: ICommand = {
         const foundClass = await getClass(classCode);
         if (!foundClass) {
             await interaction.followUp({
-                content: `Class code ${classCode} not found. <a:shookysad:949689086665437184>`
+                content: `Class code ${classCode} not found. 😞`
             });
             return;
         }
 
-        const addedChannelCorrectly = await addHomeworkChannel(channelID, interaction, classCode);
-        if (addedChannelCorrectly) {
-            await interaction.followUp(`Added channel <#${channelID}> (${channelID}) as a Homework channel`);
+        const channelAlreadyAddedForClass = hasHomeworkChannel(channelID, interaction, classCode);
+        if (channelAlreadyAddedForClass) {
+            await interaction.followUp(
+                `Channel <#${channelID}> has already been added as a Homework Channel for this class.`
+            );
+            return;
+        }
+
+        const channelAdded = await addHomeworkChannel(channelID, interaction, classCode);
+        if (channelAdded) {
+            await interaction.followUp(`Added channel <#${channelID}> (${channelID}) as a Homework channel.`);
         }
     }
 };

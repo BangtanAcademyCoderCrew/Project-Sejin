@@ -24,14 +24,14 @@ export const addPermissions: ICommand = {
         try {
             commands = await guild.commands.fetch();
         } catch (error) {
-            console.error('Something went wrong when fetching guild commands: ', error);
-            await interaction.reply({ content: `Unable to fetch guild commands. <a:shookysad:949689086665437184>` });
+            console.error('Something went wrong when fetching guild commands: ', JSON.stringify(error));
+            await interaction.reply({ content: `Unable to fetch guild commands. 😞` });
             return;
         }
 
         const command = commands.find((c) => c.name === commandName);
         if (!command) {
-            await interaction.reply({ content: `Command ${commandName} not found. <a:shookysad:949689086665437184>` });
+            await interaction.reply({ content: `Command ${commandName} not found. 😞` });
             return;
         }
 

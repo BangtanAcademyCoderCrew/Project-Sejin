@@ -16,6 +16,6 @@ export const addHwCheckerRole: ICommand = {
         const roleID = options.getRole('role').id;
         const emoji = guild.emojis.cache.find((e) => e.name === 'purple_check_mark');
         await emoji.roles.add([roleID]);
-        await interaction.reply(`You set the role ${roleMention(roleID)} to be a homework checker.`);
+        await interaction.followUp(`You set the role ${roleMention(roleID)} to be a homework checker.`);
     }
 };

@@ -60,15 +60,19 @@ const removeCommandPermission = async (
     return false;
 };
 
+const hasHomeworkChannel = (channelID: string, interaction: BaseCommandInteraction, classCode: string): boolean => {
+    return channelID in homeworkDataStore.ids && homeworkDataStore.ids[channelID] === classCode;
+};
+
 const addHomeworkChannel = async (
     channelID: string,
-    message: BaseCommandInteraction,
+    interaction: BaseCommandInteraction,
     classCode: string
 ): Promise<boolean> => {
     console.log(channelID);
     if (channelID in homeworkDataStore.ids) {
-        message.followUp(
-            `Channel <#${channelID}> has already been added as a Homework Channel. <a:shookysad:949689086665437184>`
+        interaction.followUp(
+            `Channel <#${channelID}> has already been added as a Homework Channel for class code ${classCode}. <a:shookysad:949689086665437184>`
         );
         return false;
     }
@@ -76,9 +80,9 @@ const addHomeworkChannel = async (
     return writeToFile(pathToHwDataStore, homeworkDataStore);
 };
 
-const removeHomeworkChannel = async (channelID: string, message: BaseCommandInteraction): Promise<boolean> => {
+const removeHomeworkChannel = async (channelID: string, interaction: BaseCommandInteraction): Promise<boolean> => {
     if (!(channelID in homeworkDataStore.ids)) {
-        message.followUp(
+        interaction.followUp(
             `Channel <#${channelID}> has not been added as a Homework Channel. <a:shookysad:949689086665437184>`
         );
         return false;
@@ -136,6 +140,7 @@ export {
     addHomeworkChannel,
     getNameOfEmoji,
     getTimeForSavingHomework,
+    hasHomeworkChannel,
     removeCommandPermission,
     removeHomeworkChannel,
     saveHomeworkToDB

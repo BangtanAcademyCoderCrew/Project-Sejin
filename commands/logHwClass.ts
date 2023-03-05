@@ -49,7 +49,7 @@ export const logHwClass: ICommand = {
         // Get information from the class using ClassCodeID
         const foundClass = await getClass(classCode);
         if (!foundClass) {
-            await interaction.followUp(`Class code ${classCode} not found. <a:shookysad:949689086665437184>`);
+            await interaction.followUp(`Class code ${classCode} not found. 😞`);
             return;
         }
 
@@ -97,6 +97,6 @@ export const logHwClass: ICommand = {
         const classSize = finalMemberIds.length;
 
         logMessage.sendLogBookMessage(finalMemberIds, classSize);
-        await interaction.followUp('Logbook posted!');
+        await interaction.followUp('Logbook posted! 🎉');
     }
 };

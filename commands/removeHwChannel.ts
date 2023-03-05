@@ -1,5 +1,5 @@
 import { CommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { channelMention, SlashCommandBuilder } from '@discordjs/builders';
 import { addChannelOption } from '../common/commandHelper';
 import { removeHomeworkChannel } from '../common/discordutil';
 import { ICommand } from '../types/command';
@@ -16,7 +16,7 @@ export const removeHwChannel: ICommand = {
         const channelID = options.getChannel('channel').id;
         const removedChannelCorrectly = await removeHomeworkChannel(channelID, interaction);
         if (removedChannelCorrectly) {
-            await interaction.followUp(`Removed channel <#${channelID}> (${channelID}) as a Homework channel`);
+            await interaction.followUp(`Removed channel ${channelMention(channelID)} as a homework channel. 👍`);
         }
     }
 };

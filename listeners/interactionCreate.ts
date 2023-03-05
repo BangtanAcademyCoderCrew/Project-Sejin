@@ -42,9 +42,7 @@ const handleSelectMenu = async (client: IClient, interaction: SelectMenuInteract
         const result = await saveHomeworkToDB(msg, hwNumber, classCode);
         if (result) {
             await interaction.editReply({
-                content: `The homework has been registered as assignment number ${values.join(
-                    ', '
-                )}! <a:btshooky_thumbsup:854135650294169610> `,
+                content: `The homework has been registered as assignment number ${values.join(', ')}! 👍`,
                 components: []
             });
         } else {

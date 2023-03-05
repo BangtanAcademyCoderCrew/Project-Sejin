@@ -2,7 +2,7 @@ import { SlashCommandBuilder, roleMention } from '@discordjs/builders';
 import { CommandInteraction, GuildBasedChannel } from 'discord.js';
 import { createClass, getClassCodeByRoleID } from '../api/classApi';
 import { addChannelStringOption, addClassCodeStringOption } from '../common/commandHelper';
-import { addHomeworkChannel } from '../common/discordutil';
+import { addHomeworkChannel, hasHomeworkChannel } from '../common/discordutil';
 import { ICommand } from '../types/command';
 
 const slashCommandBuilder = new SlashCommandBuilder();
@@ -45,7 +45,17 @@ export const addCc: ICommand = {
         const type = options.getString('type');
         const numberOfAssignments = options.getInteger('number_of_assignments') || 0;
 
-        const validateChannel = async (hwChannel: GuildBasedChannel, channelID: string): Promise<boolean> => {
+        const addChannel = async (hwChannel: GuildBasedChannel): Promise<boolean> => {
+            const channelAdded = await addHomeworkChannel(hwChannel.id, interaction, classCode);
+            if (!channelAdded) {
+                channel.send(`There was a problem adding channel ${hwChannel} (${hwChannel.id}) as a Homework channel`);
+                return false;
+            }
+            channel.send(`Added channel ${hwChannel} (${hwChannel.id}) as a Homework channel`);
+            return true;
+        };
+
+        const validateAndAddChannel = async (hwChannel: GuildBasedChannel, channelID: string): Promise<boolean> => {
             const validChannels = {
                 hw: ['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD'],
                 vc: ['GUILD_VOICE'],
@@ -57,53 +67,55 @@ export const addCc: ICommand = {
             }
             if (!validChannels[type].includes(hwChannel.type)) {
                 interaction.followUp(
-                    `Channel type ${hwChannel.type} is not valid for ${type} format. Valid formats are: ${validChannels[
-                        type
-                    ].join(', ')}`
+                    `ChannelID: ${channelID}. The channel type ${
+                        hwChannel.type
+                    } is not valid for ${type} format. Valid formats are: ${validChannels[type].join(', ')}`
                 );
+
                 return false;
             }
             if (['hw'].includes(type)) {
-                const addedChannelCorrectly = await addHomeworkChannel(hwChannel.id, interaction, classCode);
-                if (!addedChannelCorrectly) {
-                    return false;
+                const channelAlreadyAddedForClass = hasHomeworkChannel(hwChannel.id, interaction, classCode);
+                if (channelAlreadyAddedForClass) {
+                    return true;
                 }
-                channel.send(`Added channel ${hwChannel} (${hwChannel.id}) as a Homework channel`);
+                return addChannel(hwChannel);
             }
+
             return true;
         };
 
+        const result = await getClassCodeByRoleID(roleID);
+        if (result.classCode && result.classCode !== classCode) {
+            await interaction.followUp(`There's already class code ${result.classCode} with this role assigned! `);
+            return;
+        }
+
         if (type === 'hw' && numberOfAssignments === 0) {
-            await interaction.followUp(
-                'For a club, the number of assignments should be greater than 0. <a:shookysad:949689086665437184>'
-            );
+            await interaction.followUp('For a club, the number of assignments should be greater than 0. 😞');
             return;
         }
 
         const allChannelIDs = channelIDs.split(' ');
-        const validated = await Promise.all(
+        const allChannelPromises = await Promise.all(
             allChannelIDs.map((hwChannelID) => {
                 const hwChannel = channel.guild.channels.cache.get(hwChannelID);
-                return validateChannel(hwChannel, hwChannelID);
+                return validateAndAddChannel(hwChannel, hwChannelID);
             })
         );
-        if (!validated) {
-            return;
-        }
 
-        const classChannel = channel.guild.channels.cache.get(allChannelIDs[0]);
-        const sID = classChannel.guild.id;
-        const result = await getClassCodeByRoleID(roleID);
-        if (result && result.classCode !== classCode) {
-            await interaction.followUp(`There's already class code ${result.classCode} with this role assigned!`);
-            return;
+        const areAllChannelsValid = allChannelPromises.every((v) => v === true);
+        console.log('Debug -- allChannelPromises', allChannelPromises);
+        console.log('Debug -- areAllChannelsValid', areAllChannelsValid);
+        if (areAllChannelsValid) {
+            const classChannel = channel.guild.channels.cache.get(allChannelIDs[0]);
+            const sID = classChannel.guild.id;
+            await createClass(sID, roleID, channelIDs, classCode, classTitle, imageUrl, numberOfAssignments.toString());
+            await interaction.followUp(
+                `You set ${classCode} to be the class code for ${roleMention(
+                    roleID
+                )}\nThe class title is: ${classTitle}\nThe class image is: ${imageUrl}`
+            );
         }
-
-        await createClass(sID, roleID, channelIDs, classCode, classTitle, imageUrl, numberOfAssignments.toString());
-        await interaction.followUp(
-            `You set ${classCode} to be the class code for ${roleMention(
-                roleID
-            )}\n The class title is: ${classTitle}\nThe class image is: ${imageUrl}`
-        );
     }
 };
