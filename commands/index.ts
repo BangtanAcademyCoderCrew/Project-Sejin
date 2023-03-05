@@ -4,7 +4,6 @@ import { addAlumniRoles } from './addAlumniRoles';
 import { addHw } from './addHw';
 import { addHwChannel } from './addHwChannel';
 import { addHwCheckerRole } from './addHwCheckerRole';
-import { addPermissions } from './addPermissions';
 import { findCc } from './findcc';
 import { log } from './log';
 import { logHw } from './logHw';
@@ -21,7 +20,6 @@ export const Commands: Array<ICommand> = [
     addHw,
     addHwChannel,
     addHwCheckerRole,
-    addPermissions,
     findCc,
     log,
     logHw,
