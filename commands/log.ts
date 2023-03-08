@@ -21,7 +21,7 @@ export const log: ICommand = {
         const desc = options.getString('description') || '';
 
         if (classCode.length >= 7) {
-            await interaction.followUp('Class Code should have 6 characters.');
+            await interaction.followUp('class_code should have 6 characters.');
             return;
         }
 
@@ -34,6 +34,12 @@ export const log: ICommand = {
         const { roleID, channelID, serverID } = foundClass;
         const vcServer = client.guilds.cache.get(serverID);
         const vcChannel = vcServer.channels.cache.get(channelID) as VoiceBasedChannel;
+
+        if (vcChannel === undefined) {
+            await interaction.editReply(`Can't find ${channelMention(channelID)} vc 😞`);
+            return;
+        }
+
         const vcMembers = Array.from(vcChannel.members.values());
         const memberIds = vcMembers.filter((m) => m.roles.cache.get(roleID)).map((m) => m.user.id);
         console.log(memberIds);

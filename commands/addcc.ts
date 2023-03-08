@@ -45,6 +45,11 @@ export const addCc: ICommand = {
         const type = options.getString('type');
         const numberOfAssignments = options.getInteger('number_of_assignments') || 0;
 
+        if (classCode.length >= 7) {
+            await interaction.editReply('class_code should have 6 characters.');
+            return;
+        }
+
         const addChannel = async (hwChannel: GuildBasedChannel): Promise<boolean> => {
             const channelAdded = await addHomeworkChannel(hwChannel.id, interaction, classCode);
             if (!channelAdded) {
@@ -105,8 +110,6 @@ export const addCc: ICommand = {
         );
 
         const areAllChannelsValid = allChannelPromises.every((v) => v === true);
-        console.log('Debug -- allChannelPromises', allChannelPromises);
-        console.log('Debug -- areAllChannelsValid', areAllChannelsValid);
         if (areAllChannelsValid) {
             const classChannel = channel.guild.channels.cache.get(allChannelIDs[0]);
             const sID = classChannel.guild.id;

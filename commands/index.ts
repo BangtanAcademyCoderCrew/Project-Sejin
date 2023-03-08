@@ -11,7 +11,6 @@ import { logHwClass } from './logHwClass';
 import { removeHw } from './removeHw';
 import { removeHwChannel } from './removeHwChannel';
 import { removeHwCheckerRole } from './removeHwCheckerRole';
-import { removePermissions } from './removePermissions';
 import { setMessageChannel } from './setMessageChannel';
 
 export const Commands: Array<ICommand> = [
@@ -27,6 +26,5 @@ export const Commands: Array<ICommand> = [
     removeHw,
     removeHwChannel,
     removeHwCheckerRole,
-    removePermissions,
     setMessageChannel
 ];

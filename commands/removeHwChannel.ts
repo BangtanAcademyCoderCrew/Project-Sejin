@@ -6,7 +6,7 @@ import { ICommand } from '../types/command';
 
 const slashCommandBuilder = new SlashCommandBuilder();
 slashCommandBuilder.setName('removehwchannel').setDescription('Remove a homework channel').setDefaultPermission(false);
-addChannelOption(slashCommandBuilder);
+addChannelOption(slashCommandBuilder, true);
 
 export const removeHwChannel: ICommand = {
     config: slashCommandBuilder,

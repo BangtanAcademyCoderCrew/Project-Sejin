@@ -55,6 +55,7 @@ export const logHw: ICommand = {
         // get LogBookChannelID and GuildID of main server
         const foundChannel = await getMessageChannel(channel.id);
         if (!foundChannel) {
+            await interaction.followUp(`Logbook channel for channelID ${channel.id} not found. 😞`);
             return;
         }
 
@@ -65,36 +66,31 @@ export const logHw: ICommand = {
 
         // Search in the db for all the homework submitted and checked during a period of time
         const homework = await getHomeworks(messageChannelID, startDay, endDay, classCode);
-        if (!homework || homework.length === 0) {
-            return;
-        }
 
-        const studentsIdsByHomeworkNumber = new Map();
+        const studentsByHomeworkNumber = new Map();
         const alreadyLoggedStudentIds = [];
-        homework
-            .sort((a, b) => parseInt(a.timestamp, 10) - parseInt(b.timestamp, 10))
-            .reverse()
-            .forEach((hw) => {
-                const hwNumber = hw.type;
-                const studentId = hw.studentID;
-                const hasStudentAlreadyBeenLogged = alreadyLoggedStudentIds.includes(studentId);
-                if (shouldNotAllowMultipleEntries && hasStudentAlreadyBeenLogged) {
-                    return;
-                }
-                if (!(hwNumber in studentsIdsByHomeworkNumber)) {
-                    studentsIdsByHomeworkNumber[hwNumber] = [];
-                }
-                studentsIdsByHomeworkNumber[hwNumber].push(studentId);
-                alreadyLoggedStudentIds.push(studentId);
-            });
+        homework.forEach((hw) => {
+            const hwNumber = hw.type;
+            const studentId = hw.studentID;
+            const hasStudentAlreadyBeenLogged = alreadyLoggedStudentIds.includes(studentId);
+            if (shouldNotAllowMultipleEntries && hasStudentAlreadyBeenLogged) {
+                return;
+            }
+            if (!(hwNumber in studentsByHomeworkNumber)) {
+                studentsByHomeworkNumber[hwNumber] = [];
+            }
+            studentsByHomeworkNumber[hwNumber].push(studentId);
+            alreadyLoggedStudentIds.push(studentId);
+        });
 
-        const totalHomeworks = Object.keys(studentsIdsByHomeworkNumber).length;
+        const totalHomeworks = Object.keys(studentsByHomeworkNumber).length;
         if (totalHomeworks === 0) {
             await interaction.followUp('There was no homework submitted during this time period.');
             return;
         }
+
         const logMessage = new HomeworkLogBook(messageChannel, foundClass, desc, totalHomeworks, hwDesc);
-        logMessage.sendLogBookMessage(studentsIdsByHomeworkNumber);
+        logMessage.sendLogBookMessage(studentsByHomeworkNumber);
         await interaction.followUp('Logbook posted!');
     }
 };

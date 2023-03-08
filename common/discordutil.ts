@@ -1,12 +1,10 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { ApplicationCommandPermissionData, BaseCommandInteraction, Message, PartialMessage } from 'discord.js';
+import { BaseCommandInteraction, Message, PartialMessage } from 'discord.js';
 import { addHomework } from '../api/homeworkApi';
 import * as homeworkDataStore from '../hwchannels.json';
-import * as permissionsDataStore from '../customPermissions.json';
 
 const pathToHwDataStore = path.resolve('hwchannels.json');
-const pathToPermissionsDataStore = path.resolve('customPermissions.json');
 
 const getTimeForSavingHomework = (message: Message | PartialMessage) => {
     const date = new Date(message.createdTimestamp);
@@ -17,7 +15,7 @@ const getTimeForSavingHomework = (message: Message | PartialMessage) => {
         date.getUTCHours() - 5,
         date.getUTCMinutes()
     );
-    return CSTDay.toString();
+    return Date.parse(CSTDay.toString()).toString();
 };
 
 const writeToFile = async (pathToJson, file): Promise<boolean> => {
@@ -30,34 +28,6 @@ const writeToFile = async (pathToJson, file): Promise<boolean> => {
         console.log(`Error writing to file: ${error}`);
         return false;
     }
-};
-
-const addCommandPermission = async (
-    commandId: string,
-    permissions: Array<ApplicationCommandPermissionData>
-): Promise<boolean> => {
-    if (commandId in permissionsDataStore) {
-        permissionsDataStore[commandId].permissions = permissionsDataStore[commandId].permissions.concat(permissions);
-    } else {
-        permissionsDataStore[commandId] = {
-            id: commandId,
-            permissions
-        };
-    }
-    return writeToFile(pathToPermissionsDataStore, permissionsDataStore);
-};
-
-const removeCommandPermission = async (
-    commandId: string,
-    newPermissions: Array<ApplicationCommandPermissionData>
-): Promise<boolean> => {
-    if (commandId in permissionsDataStore) {
-        permissionsDataStore[commandId].permissions = permissionsDataStore[commandId].permissions.filter(
-            (permission) => permission.id !== newPermissions[0].id
-        );
-        return writeToFile(pathToPermissionsDataStore, permissionsDataStore);
-    }
-    return false;
 };
 
 const hasHomeworkChannel = (channelID: string, interaction: BaseCommandInteraction, classCode: string): boolean => {
@@ -136,12 +106,10 @@ const getNameOfEmoji = (emoji): string | null => {
 };
 
 export {
-    addCommandPermission,
     addHomeworkChannel,
     getNameOfEmoji,
     getTimeForSavingHomework,
     hasHomeworkChannel,
-    removeCommandPermission,
     removeHomeworkChannel,
     saveHomeworkToDB
 };

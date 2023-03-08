@@ -10,7 +10,7 @@ slashCommandBuilder
     .setDescription('Adds an alumni role to a class in the voice channel.')
     .setDefaultPermission(false);
 addClassCodeStringOption(slashCommandBuilder, true).addRoleOption((option) =>
-    option.setName('alumni_role').setDescription('The alumni role to be added to the users').setRequired(false)
+    option.setName('alumni_role').setDescription('The alumni role to be added to the users').setRequired(true)
 );
 
 export const addAlumniRoles: ICommand = {
@@ -35,11 +35,17 @@ export const addAlumniRoles: ICommand = {
         const { roleID, channelID, serverID } = foundClass;
         const vcServer = client.guilds.cache.get(serverID);
         const vcChannel = vcServer.channels.cache.get(channelID) as VoiceBasedChannel;
-        const vcMembers = Array.from(vcChannel.members.values());
+
+        if (vcChannel === undefined) {
+            await interaction.editReply(`Can't find ${channelMention(channelID)} vc 😞`);
+            return;
+        }
+
+        const vcMembers = Array.from(vcChannel.members.values()) || [];
         const members = vcMembers.filter((m) => m.roles.cache.get(roleID));
         if (members.length === 0) {
             await interaction.editReply(
-                `There is no one on vc ${channelMention(channelID)} with role ${roleMention(roleID)} 😞`
+                `There is no one in vc ${channelMention(channelID)} with role ${roleMention(roleID)} 😞`
             );
             return;
         }

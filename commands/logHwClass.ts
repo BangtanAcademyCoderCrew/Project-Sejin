@@ -26,11 +26,11 @@ export const logHwClass: ICommand = {
         const endTime = options.getString('end_time');
         const classCode = options.getString('class_code');
         const desc = options.getString('description') || '';
-
-        if (classCode.length >= 7) {
-            await interaction.followUp('class_code should have 6 characters.');
-            return;
-        }
+        //
+        // if (classCode.length >= 7) {
+        //     await interaction.followUp('class_code should have 6 characters.');
+        //     return;
+        // }
 
         if (
             !DateValidator.isValidDate(endDay) ||
