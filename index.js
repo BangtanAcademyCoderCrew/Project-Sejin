@@ -19,6 +19,7 @@ const client = new Client({
 });
 
 const hwChannels = require('./hwchannels.json');
+const previewChannel = require('./previewlinkschannel.json');
 const HomeworkDB = require('./database/homework-db');
 const numberEmojis = require('./emojis.json');
 
@@ -34,6 +35,33 @@ client.once('ready', () => {
 	console.log('Ready!');
 	deployCommands();
 	client.user.setActivity('Proof', { type: 'LISTENING' });
+});
+
+client.on('messageCreate', async interaction => {
+	if (interaction.author.bot) return;
+
+	if (!previewChannel.ids.includes(interaction.channel.id)) {
+		return;
+	}
+	const linkFormat = 'https://discord.com/channels/';
+	const urlRegex = /(https?:\/\/[^\s]+)/g;
+	const text = interaction.content;
+	const links = text.match(urlRegex);
+
+	links.forEach(link => {
+		if (!link.includes(linkFormat)) return;
+		const messageInfo = link.replace(linkFormat, '').split('/');
+		const guildId = messageInfo[0];
+		const guild = interaction.client.guilds.cache.get(guildId);
+		if (!guild) return;
+		const channelId = messageInfo[1];
+		const messageId = messageInfo[2];
+		guild.channels.cache.get(channelId).messages.fetch(messageId).then(message => {
+			const embed = DiscordUtil.createPreviewMessage(message, message.content, message.attachments);
+			interaction.channel.send({ embeds: [embed] });
+		});
+
+	});
 });
 
 client.on('interactionCreate', async interaction => {
