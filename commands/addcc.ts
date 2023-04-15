@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, roleMention } from '@discordjs/builders';
 import { CommandInteraction, GuildBasedChannel } from 'discord.js';
-import { createClass, getClassCodeByRoleID } from '../api/classApi';
+import { createClass, getClass, getClassCodeByRoleID } from '../api/classApi';
 import { addChannelStringOption, addClassCodeStringOption } from '../common/commandHelper';
 import { addHomeworkChannel, hasHomeworkChannel } from '../common/discordutil';
 import { ICommand } from '../types/command';
@@ -90,9 +90,18 @@ export const addCc: ICommand = {
             return true;
         };
 
-        const result = await getClassCodeByRoleID(roleID);
-        if (result.classCode && result.classCode !== classCode) {
-            await interaction.followUp(`There's already class code ${result.classCode} with this role assigned! `);
+        const classByRoleId = await getClassCodeByRoleID(roleID);
+        if (classByRoleId.classCode && classByRoleId.classCode !== classCode) {
+            await interaction.followUp(
+                `There's already class code ${classByRoleId.classCode} with this role assigned! `
+            );
+            return;
+        }
+
+        const classByClassCode = await getClass(classCode);
+        if (classByClassCode.classCode && classByClassCode.classCode === classCode) {
+            const className = classByClassCode.title;
+            await interaction.followUp(`There's already class code ${classCode} registered for class ${className}!`);
             return;
         }
 
@@ -101,25 +110,23 @@ export const addCc: ICommand = {
             return;
         }
 
-        console.log('Debug -- hwChannels', hwChannels);
         // remove any channel mention syntax and trim whitespace
         const allChannelIDs = hwChannels
             .split(/(\s+)/)
             .filter((e) => e.trim().length > 0)
             .map((c) => c.replace(/\D/g, ''));
-        console.log('Debug -- allChannelIDs', allChannelIDs);
         const allChannelPromises = await Promise.all(
             allChannelIDs.map((hwChannelID) => {
                 const hwChannel = channel.guild.channels.cache.get(hwChannelID);
-                console.log('Debug -- hwChannel', hwChannel);
                 return validateAndAddChannel(hwChannel, hwChannelID);
             })
         );
 
         const areAllChannelsValid = allChannelPromises.every((v) => v === true);
         if (areAllChannelsValid) {
-            const classChannel = channel.guild.channels.cache.get(allChannelIDs[0]);
+            const classChannel = interaction.guild.channels.cache.get(allChannelIDs[0]);
             const sID = classChannel.guild.id;
+
             await createClass(sID, roleID, hwChannels, classCode, classTitle, imageUrl, numberOfAssignments.toString());
             await interaction.followUp(
                 `You set ${classCode} to be the class code for ${roleMention(

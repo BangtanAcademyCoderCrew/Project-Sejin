@@ -92,7 +92,6 @@ class LogBookMessage {
         const dateMessage = this.getDateMessage();
         let tagRole = '';
         const { roleID, title } = this.classInfo;
-        console.log(roleID);
         if (this.messageChannel.guild.roles.cache.get(roleID) !== undefined) {
             tagRole = `<@&${roleID}>`;
         }

@@ -39,7 +39,6 @@ const addHomeworkChannel = async (
     interaction: BaseCommandInteraction,
     classCode: string
 ): Promise<boolean> => {
-    console.log(channelID);
     if (channelID in homeworkDataStore.ids) {
         interaction.followUp(
             `Channel <#${channelID}> has already been added as a Homework Channel for class code ${classCode}. <a:shookysad:949689086665437184>`

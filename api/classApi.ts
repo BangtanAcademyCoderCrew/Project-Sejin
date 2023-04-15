@@ -56,7 +56,7 @@ const getClass = async (classCode: string): Promise<IClass> => {
         console.log(`Retrieving class: classCode ${classCode}`);
         const command = new GetCommand(params);
         const result = await ddbDocClient.send(command);
-        return result.Item as IClass;
+        return result.Item ? (result.Item as IClass) : ({} as IClass);
     } catch (error) {
         console.log(`Error retrieving class ${classCode}: ${error}`);
         return error;
