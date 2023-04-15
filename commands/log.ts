@@ -20,8 +20,8 @@ export const log: ICommand = {
         const classCode = options.getString('class_code');
         const desc = options.getString('description') || '';
 
-        if (classCode.length >= 7) {
-            await interaction.followUp('class_code should have 6 characters.');
+        if (classCode.length > 7) {
+            await interaction.followUp('Class code should have 6/7 characters.');
             return;
         }
 
@@ -42,7 +42,6 @@ export const log: ICommand = {
 
         const vcMembers = Array.from(vcChannel.members.values());
         const memberIds = vcMembers.filter((m) => m.roles.cache.get(roleID)).map((m) => m.user.id);
-        console.log(memberIds);
         if (memberIds.length === 0) {
             await interaction.followUp(
                 `There is no one on vc ${channelMention(serverID)} with role ${roleMention(
@@ -51,7 +50,7 @@ export const log: ICommand = {
             );
         }
 
-        // get LogBookChannel ID and GuildID of main server
+        // get LogBookChannelID and GuildID of main server
         const foundChannel = await getMessageChannel(channel.id);
         if (foundChannel) {
             const messageChannelID = foundChannel.channelID;
@@ -63,7 +62,7 @@ export const log: ICommand = {
             const classSize = memberIds.length;
             if (desc.length > 0 || classSize > 0) {
                 logMessage.sendLogBookMessage(memberIds, classSize);
-                await interaction.followUp('Logbook posted!');
+                await interaction.followUp('Logbook posted! 🎉');
             }
         }
     }

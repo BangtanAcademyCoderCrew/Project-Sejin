@@ -37,7 +37,7 @@ export const addCc: ICommand = {
     execute: async (interaction: CommandInteraction) => {
         await interaction.deferReply();
         const { channel, options } = interaction;
-        const channelIDs = options.getString('channel');
+        const hwChannels = options.getString('channel');
         const roleID = options.getRole('role').id;
         const classTitle = options.getString('title');
         const classCode = options.getString('class_code');
@@ -45,8 +45,8 @@ export const addCc: ICommand = {
         const type = options.getString('type');
         const numberOfAssignments = options.getInteger('number_of_assignments') || 0;
 
-        if (classCode.length >= 7) {
-            await interaction.editReply('class_code should have 6 characters.');
+        if (classCode.length > 7) {
+            await interaction.editReply('Class code should have 6/7 characters.');
             return;
         }
 
@@ -101,10 +101,17 @@ export const addCc: ICommand = {
             return;
         }
 
-        const allChannelIDs = channelIDs.split(' ');
+        console.log('Debug -- hwChannels', hwChannels);
+        // remove any channel mention syntax and trim whitespace
+        const allChannelIDs = hwChannels
+            .split(/(\s+)/)
+            .filter((e) => e.trim().length > 0)
+            .map((c) => c.replace(/\D/g, ''));
+        console.log('Debug -- allChannelIDs', allChannelIDs);
         const allChannelPromises = await Promise.all(
             allChannelIDs.map((hwChannelID) => {
                 const hwChannel = channel.guild.channels.cache.get(hwChannelID);
+                console.log('Debug -- hwChannel', hwChannel);
                 return validateAndAddChannel(hwChannel, hwChannelID);
             })
         );
@@ -113,7 +120,7 @@ export const addCc: ICommand = {
         if (areAllChannelsValid) {
             const classChannel = channel.guild.channels.cache.get(allChannelIDs[0]);
             const sID = classChannel.guild.id;
-            await createClass(sID, roleID, channelIDs, classCode, classTitle, imageUrl, numberOfAssignments.toString());
+            await createClass(sID, roleID, hwChannels, classCode, classTitle, imageUrl, numberOfAssignments.toString());
             await interaction.followUp(
                 `You set ${classCode} to be the class code for ${roleMention(
                     roleID

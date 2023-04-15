@@ -26,11 +26,11 @@ export const logHwClass: ICommand = {
         const endTime = options.getString('end_time');
         const classCode = options.getString('class_code');
         const desc = options.getString('description') || '';
-        //
-        // if (classCode.length >= 7) {
-        //     await interaction.followUp('class_code should have 6 characters.');
-        //     return;
-        // }
+
+        if (classCode.length > 7) {
+            await interaction.followUp('Class code should have 6/7 characters.');
+            return;
+        }
 
         if (
             !DateValidator.isValidDate(endDay) ||
@@ -41,7 +41,7 @@ export const logHwClass: ICommand = {
             await interaction.followUp('Please insert the correct format for dates and time (YYYY/MM/DD HH:MM)');
             return;
         }
-        DateValidator.adaptFormatOfDays(startTime, startDay, endTime, endDay);
+
         const periodDayTimes = DateValidator.adaptFormatOfDays(startTime, startDay, endTime, endDay);
         startDay = periodDayTimes[0];
         endDay = periodDayTimes[1];
@@ -56,10 +56,15 @@ export const logHwClass: ICommand = {
         const { roleID, channelID, serverID } = foundClass;
         const vcServer = client.guilds.cache.get(serverID);
         const vcChannel = vcServer.channels.cache.get(channelID) as VoiceBasedChannel;
-        const vcMembers = Array.from(vcChannel.members.values());
-        const memberIds = vcMembers.filter((m) => m.roles.cache.get(roleID)).map((m) => m.user.id);
 
-        if (memberIds.length === 0) {
+        if (vcChannel === undefined) {
+            await interaction.editReply(`Can't find ${channelMention(channelID)} vc 😞`);
+            return;
+        }
+
+        const vcMembers = Array.from(vcChannel.members.values());
+        const vcMemberIds = vcMembers.filter((m) => m.roles.cache.get(roleID)).map((m) => m.user.id);
+        if (vcMemberIds.length === 0) {
             await interaction.followUp(
                 `There is no one on vc ${channelMention(channelID)} with role ${roleMention(
                     roleID
@@ -71,12 +76,13 @@ export const logHwClass: ICommand = {
         // get LogBookChannelID and GuildID of main server
         const foundChannel = await getMessageChannel(channel.id);
         if (!foundChannel) {
+            await interaction.followUp(`Logbook channel for channelID ${channel.id} not found. 😞`);
             return;
         }
 
         const messageChannelID = foundChannel.channelID;
         const messageChannelGuildID = foundChannel.guildID;
-        const guild = client.guilds.cache.get(messageChannelGuildID);
+        const guild = interaction.client.guilds.cache.get(messageChannelGuildID);
         const messageChannel = guild.channels.cache.get(messageChannelID) as TextChannel;
 
         // Search in the db for all the homework submitted and checked during a period of time
@@ -85,18 +91,19 @@ export const logHwClass: ICommand = {
             return;
         }
 
-        const studentsSubmittedHw = homework.map((hw) => hw.studentID);
-        const totalHomeworks = Object.keys(studentsSubmittedHw).length;
+        const studentsSubmittedHwIds = homework.map((hw) => hw.studentID);
+        const totalHomeworks = studentsSubmittedHwIds.length;
         if (totalHomeworks === 0) {
             await interaction.followUp('There was no homework submitted during this time period.');
             return;
         }
 
-        const finalMemberIds = memberIds.filter((name) => studentsSubmittedHw.includes(name));
+        const finalMemberIds = vcMemberIds.filter((id) => studentsSubmittedHwIds.includes(id));
         const logMessage = new VCLogBook(messageChannel, foundClass, desc);
         const classSize = finalMemberIds.length;
-
-        logMessage.sendLogBookMessage(finalMemberIds, classSize);
-        await interaction.followUp('Logbook posted! 🎉');
+        if (desc.length > 0 || classSize > 0) {
+            logMessage.sendLogBookMessage(finalMemberIds, classSize);
+            await interaction.followUp('Logbook posted! 🎉');
+        }
     }
 };

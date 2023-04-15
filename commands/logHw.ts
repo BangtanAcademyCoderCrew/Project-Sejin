@@ -26,8 +26,8 @@ export const logHw: ICommand = {
         const hwDesc = options.getString('hw_description') || 'Assignment [number]';
         const shouldNotAllowMultipleEntries = options.getBoolean('no_multiples');
 
-        if (classCode.length >= 7) {
-            await interaction.followUp('class_code should have 6 characters.');
+        if (classCode.length > 7) {
+            await interaction.followUp('Class code should have 6/7 characters.');
             return;
         }
 
