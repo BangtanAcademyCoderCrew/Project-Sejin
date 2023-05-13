@@ -1,0 +1,52 @@
+{
+  "root": true,
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "airbnb-typescript-prettier",
+        "prettier/@typescript-eslint"
+      ],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaVersion": 2021,
+        "project": "./tsconfig.json",
+        "sourceType": "module"
+      },
+      "plugins": [
+        "@typescript-eslint"
+      ],
+      "settings": {
+        "import/resolver": {
+          "node": {
+            "extensions": [
+              ".ts",
+              ".js"
+            ]
+          }
+        }
+      },
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off",
+        "import/prefer-default-export": "off",
+        "import/no-cycle": "warn",
+        "prefer-destructuring": [
+          "warn",
+          {
+            "object": true,
+            "array": false
+          }
+        ],
+        "no-console": "off",
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        "no-restricted-syntax": [
+          "error",
+          "ForInStatement",
+          "LabeledStatement",
+          "WithStatement"
+        ]
+      }
+    }
+  ]
+}

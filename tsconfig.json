@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2017"],
+    "module": "CommonJS",
+    "target": "ES2017",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "types": [
+      "node",
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "outDir": "build"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
+  "include": ["./**/*.ts", "./**/*.json"],
+  "exclude": ["node_modules/*", "build"],
+  "compileOnSave": false
+}
