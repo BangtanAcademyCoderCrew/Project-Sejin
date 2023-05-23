@@ -45,7 +45,7 @@ export const addCc: ICommand = {
         const type = options.getString('type');
         const numberOfAssignments = options.getInteger('number_of_assignments') || 0;
 
-        if (classCode.length > 7) {
+        if (classCode.length >= 7) {
             await interaction.editReply('Class code should have 6/7 characters.');
             return;
         }
