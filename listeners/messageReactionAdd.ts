@@ -53,7 +53,7 @@ export default (client: IClient): void => {
             }
 
             if (emojiName === '⏭️') {
-                const nextEmojis = numberEmojis.emojis.slice(10, 20);
+                const nextEmojis = numberEmojis.emojis.slice(10, 30);
                 nextEmojis.forEach((e) => {
                     message.react(e);
                 });

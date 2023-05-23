@@ -8,7 +8,7 @@ export const addHw: ICommand = {
         const { targetId } = interaction;
         const options = [];
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 25; i++) {
             const option = {
                 label: `Assignment ${i + 1}`,
                 value: `${i + 1}`
