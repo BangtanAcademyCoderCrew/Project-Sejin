@@ -21,7 +21,7 @@ export const addAlumniRoles: ICommand = {
         const classCode = options.getString('class_code');
         const roleToAssign = options.getRole('alumni_role');
 
-        if (classCode.length >= 7) {
+        if (classCode.length < 6 || classCode.length > 7) {
             await interaction.editReply('Class code should have 6/7 characters.');
             return;
         }

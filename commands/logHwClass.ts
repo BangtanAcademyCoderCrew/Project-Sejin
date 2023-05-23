@@ -27,7 +27,7 @@ export const logHwClass: ICommand = {
         const classCode = options.getString('class_code');
         const desc = options.getString('description') || '';
 
-        if (classCode.length >= 7) {
+        if (classCode.length < 6 || classCode.length > 7) {
             await interaction.followUp('Class code should have 6/7 characters.');
             return;
         }

@@ -27,7 +27,7 @@ export const logHw: ICommand = {
 
         await interaction.deferReply();
 
-        if (classCode.length >= 7) {
+        if (classCode.length < 6 || classCode.length > 7) {
             await interaction.followUp('Class code should have 6/7 characters.');
             return;
         }
