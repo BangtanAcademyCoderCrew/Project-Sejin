@@ -15,7 +15,6 @@ addLogHwOptions(slashCommandBuilder);
 export const logHw: ICommand = {
     config: slashCommandBuilder,
     execute: async (interaction: CommandInteraction) => {
-        await interaction.deferReply();
         const { channel, client, options } = interaction;
         let startDay = options.getString('start_date');
         const startTime = options.getString('start_time');
@@ -26,7 +25,9 @@ export const logHw: ICommand = {
         const hwDesc = options.getString('hw_description') || 'Assignment [number]';
         const shouldNotAllowMultipleEntries = options.getBoolean('no_multiples');
 
-        if (classCode.length > 7) {
+        await interaction.deferReply();
+
+        if (classCode.length >= 7) {
             await interaction.followUp('Class code should have 6/7 characters.');
             return;
         }
@@ -65,32 +66,34 @@ export const logHw: ICommand = {
         const messageChannel = guild.channels.cache.get(messageChannelID) as TextChannel;
 
         // Search in the db for all the homework submitted and checked during a period of time
-        const homework = await getHomeworks(messageChannelID, startDay, endDay, classCode);
+        const homeworks = await getHomeworks(foundClass.channelID, startDay, endDay, classCode);
 
-        const studentsByHomeworkNumber = new Map();
+        const studentsIdsByHomeworkNumber = new Map();
         const alreadyLoggedStudentIds = [];
-        homework.forEach((hw) => {
-            const hwNumber = hw.type;
-            const studentId = hw.studentID;
-            const hasStudentAlreadyBeenLogged = alreadyLoggedStudentIds.includes(studentId);
-            if (shouldNotAllowMultipleEntries && hasStudentAlreadyBeenLogged) {
-                return;
-            }
-            if (!(hwNumber in studentsByHomeworkNumber)) {
-                studentsByHomeworkNumber[hwNumber] = [];
-            }
-            studentsByHomeworkNumber[hwNumber].push(studentId);
-            alreadyLoggedStudentIds.push(studentId);
-        });
+        homeworks
+            .sort((a, b) => parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10))
+            .forEach((hw) => {
+                const hwNumber = hw.type;
+                const studentId = hw.studentID;
+                const hasStudentAlreadyBeenLogged = alreadyLoggedStudentIds.includes(studentId);
+                if (shouldNotAllowMultipleEntries && hasStudentAlreadyBeenLogged) {
+                    return;
+                }
+                if (!(hwNumber in studentsIdsByHomeworkNumber)) {
+                    studentsIdsByHomeworkNumber[hwNumber] = [];
+                }
+                studentsIdsByHomeworkNumber[hwNumber].push(studentId);
+                alreadyLoggedStudentIds.push(studentId);
+            });
 
-        const totalHomeworks = Object.keys(studentsByHomeworkNumber).length;
+        const totalHomeworks = Object.keys(studentsIdsByHomeworkNumber).length;
         if (totalHomeworks === 0) {
             await interaction.followUp('There was no homework submitted during this time period.');
             return;
         }
 
         const logMessage = new HomeworkLogBook(messageChannel, foundClass, desc, totalHomeworks, hwDesc);
-        logMessage.sendLogBookMessage(studentsByHomeworkNumber);
+        logMessage.sendLogBookMessage(studentsIdsByHomeworkNumber);
         await interaction.followUp('Logbook posted!');
     }
 };
