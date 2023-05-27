@@ -99,7 +99,7 @@ export const addCc: ICommand = {
         }
 
         const classByClassCode = await getClass(classCode);
-        if (classByClassCode.classCode && classByClassCode.classCode === classCode) {
+        if (classByClassCode.classCode && classByClassCode.roleID !== roleID) {
             const className = classByClassCode.title;
             await interaction.followUp(`There's already class code ${classCode} registered for class ${className}!`);
             return;

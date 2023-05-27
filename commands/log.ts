@@ -26,7 +26,7 @@ export const log: ICommand = {
         }
 
         const foundClass = await getClass(classCode);
-        if (!foundClass) {
+        if (!foundClass.classCode) {
             await interaction.followUp(`Class code ${classCode} not found. <a:shookysad:949689086665437184>`);
             return;
         }
