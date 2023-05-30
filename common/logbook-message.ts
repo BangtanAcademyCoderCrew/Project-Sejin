@@ -68,7 +68,7 @@ class LogBookMessage {
             if (i === numberOfMessages - 1) {
                 message = `${fullMessage.substring(start)}\n`;
             } else {
-                const end = start + fullMessage.substring(start, max - suffix.length).lastIndexOf(' ');
+                const end = start + fullMessage.substring(start, start + max - suffix.length).lastIndexOf(' ');
                 message = `${fullMessage.slice(start, end)}\n${suffix}`;
                 start = end + 1;
             }
